@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitOverhaul.Api", "GitOverhaul.Api\GitOverhaul.Api.csproj", "{32F91220-1127-4E79-B7F1-9601817B488C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitOverhaul.Domain", "GitOverhaul.Domain\GitOverhaul.Domain.csproj", "{E97AE78B-E30A-44BF-87B9-96039A557E89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitOverhaul.Infra", "GitOverhaul.Infra\GitOverhaul.Infra.csproj", "{915BC82E-4AAB-4A9B-AA78-B1C5DBC40AD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{62196A9E-8A2E-477C-B6B9-27AF0CB75FD1}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+		..\render.yaml = ..\render.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32F91220-1127-4E79-B7F1-9601817B488C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F91220-1127-4E79-B7F1-9601817B488C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F91220-1127-4E79-B7F1-9601817B488C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F91220-1127-4E79-B7F1-9601817B488C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E97AE78B-E30A-44BF-87B9-96039A557E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E97AE78B-E30A-44BF-87B9-96039A557E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E97AE78B-E30A-44BF-87B9-96039A557E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E97AE78B-E30A-44BF-87B9-96039A557E89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{915BC82E-4AAB-4A9B-AA78-B1C5DBC40AD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{915BC82E-4AAB-4A9B-AA78-B1C5DBC40AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{915BC82E-4AAB-4A9B-AA78-B1C5DBC40AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{915BC82E-4AAB-4A9B-AA78-B1C5DBC40AD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

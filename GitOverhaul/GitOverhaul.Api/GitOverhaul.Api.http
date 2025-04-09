@@ -1,0 +1,6 @@
+@GitOverhaul.Api_HostAddress = http://localhost:5072
+
+GET {{GitOverhaul.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
