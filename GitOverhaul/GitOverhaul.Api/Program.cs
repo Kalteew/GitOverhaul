@@ -29,11 +29,11 @@ gitGroup.MapGetStructure()
 var openaiGroup = app.MapGroup("/openai");
 openaiGroup.MapOpenAiSchema();
 
-// Start schema generation in background after app has started
+// Génération après démarrage complet de l'app
 Task.Run(() =>
 {
     using var scope = app.Services.CreateScope();
-    GenerateOpenAiSchema.Run(builder.Services);
+    GenerateOpenAiSchema.Run(scope.ServiceProvider);
 });
 
 app.Run();
