@@ -29,7 +29,11 @@ gitGroup.MapGetStructure()
 var openaiGroup = app.MapGroup("/openai");
 openaiGroup.MapOpenAiSchema();
 
-// Génération du fichier OpenAI après que Swagger soit intégré dans le pipeline
-GenerateOpenAiSchema.Run(builder.Services);
+// Start schema generation in background after app has started
+Task.Run(() =>
+{
+    using var scope = app.Services.CreateScope();
+    GenerateOpenAiSchema.Run(builder.Services);
+});
 
 app.Run();
