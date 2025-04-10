@@ -2,15 +2,14 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Writers;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace GitOverhaul.Api.Tools;
 
 public static class GenerateOpenAiSchema
 {
-    public static void Run(IServiceProvider services)
+    public static void Run(ISwaggerProvider swaggerGen)
     {
-        var swaggerGen = services.GetRequiredService<SwaggerGenerator>();
         var doc = swaggerGen.GetSwagger("v1");
 
         // Ajout de la description et du serveur pour OpenAI

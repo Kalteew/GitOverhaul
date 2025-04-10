@@ -1,17 +1,15 @@
 using GitOverhaul.Api.Features.Git;
-using GitOverhaul.Api.Features.OpenAi;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Api.Tools;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IGitService, GitService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
@@ -26,13 +24,12 @@ gitGroup.MapGetStructure()
     .MapPushChanges()
     .MapCreateBranch();
 
-var openaiGroup = app.MapGroup("/openai");
-openaiGroup.MapOpenAiSchema();
 
-// Génération du fichier OpenAI à chaud, avec tous les endpoints
-using (var scope = app.Services.CreateScope())
-{
-    GenerateOpenAiSchema.Run(scope.ServiceProvider);
-}
+using var serviceScope = app.Services.CreateScope();
+
+var services = serviceScope.ServiceProvider;
+
+var swaggerProvider = services.GetRequiredService<ISwaggerProvider>();
+GenerateOpenAiSchema.Run(swaggerProvider);
 
 app.Run();
