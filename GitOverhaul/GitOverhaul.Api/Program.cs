@@ -24,12 +24,7 @@ gitGroup.MapGetStructure()
     .MapPushChanges()
     .MapCreateBranch();
 
-
-using var serviceScope = app.Services.CreateScope();
-
-var services = serviceScope.ServiceProvider;
-
-var swaggerProvider = services.GetRequiredService<ISwaggerProvider>();
+var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
 GenerateOpenAiSchema.Run(swaggerProvider);
 
 app.Run();
