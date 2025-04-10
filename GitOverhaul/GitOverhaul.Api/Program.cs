@@ -1,6 +1,5 @@
 using GitOverhaul.Api.Features.Git;
 using GitOverhaul.Api.Features.OpenAi;
-using GitOverhaul.Api.Infrastructure;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Api.Tools;
 using GitOverhaul.Domain.Services;
@@ -13,7 +12,6 @@ builder.Services.AddSingleton<IGitService, GitService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<SwaggerGenerator>();
-builder.Services.AddHostedService<OpenAiSchemaHostedService>();
 
 var app = builder.Build();
 
@@ -30,5 +28,11 @@ gitGroup.MapGetStructure()
 
 var openaiGroup = app.MapGroup("/openai");
 openaiGroup.MapOpenAiSchema();
+
+// Génération du fichier OpenAI à chaud, avec tous les endpoints
+using (var scope = app.Services.CreateScope())
+{
+    GenerateOpenAiSchema.Run(scope.ServiceProvider);
+}
 
 app.Run();
