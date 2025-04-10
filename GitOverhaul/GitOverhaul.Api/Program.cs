@@ -14,6 +14,7 @@ builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseMiddleware<ErrorMiddleware>();
 app.UseSwaggerUI();
