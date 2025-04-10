@@ -3,13 +3,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.Swagger;
 
-Host.CreateDefaultBuilder()
-    .ConfigureServices(services =>
+public class GenerateSchemaEntry
+{
+    public static void Main(string[] args)
     {
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-    })
-    .Build()
-    .Services
-    .GetRequiredService<ISwaggerProvider>()
-    .Let(GenerateOpenAiSchema.Run);
+        using var host = Host.CreateDefaultBuilder()
+            .ConfigureServices(services =>
+            {
+                services.AddEndpointsApiExplorer();
+                services.AddSwaggerGen();
+            })
+            .Build();
+
+        var swagger = host.Services.GetRequiredService<ISwaggerProvider>();
+        GenerateOpenAiSchema.Run(swagger);
+    }
+}
