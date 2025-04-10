@@ -1,0 +1,29 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GitOverhaul API",
+    "version": "v1"
+  },
+  "paths": {
+    "/git/structure": {
+      "get": {
+        "summary": "Get Git structure"
+      }
+    },
+    "/git/read": {
+      "get": {
+        "summary": "Read Git file"
+      }
+    },
+    "/git/push": {
+      "post": {
+        "summary": "Push Git file"
+      }
+    },
+    "/git/create-branch": {
+      "post": {
+        "summary": "Create Git branch"
+      }
+    }
+  }
+}
