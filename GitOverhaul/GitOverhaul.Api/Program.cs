@@ -13,13 +13,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (args.Contains("--schema"))
-{
-    var swagger = app.Services.GetRequiredService<ISwaggerProvider>();
-    GenerateOpenAiSchema.Run(swagger);
-    return;
-}
-
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseMiddleware<ErrorMiddleware>();
@@ -30,5 +23,11 @@ gitGroup.MapGetStructure()
     .MapReadFile()
     .MapPushChanges()
     .MapCreateBranch();
+
+if (args.Contains("--schema")) {
+    var swagger = app.Services.GetRequiredService<ISwaggerProvider>();
+    GenerateOpenAiSchema.Run(swagger);
+    return;
+}
 
 app.Run();
