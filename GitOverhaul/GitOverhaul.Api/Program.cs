@@ -18,6 +18,7 @@ app.UseSwaggerUI();
 var gitGroup = app.MapGroup("/git");
 gitGroup.MapGetStructure()
     .MapReadFile()
-    .MapPushChanges();
+    .MapPushChanges()
+    .MapCreateBranch();
 
 app.Run();

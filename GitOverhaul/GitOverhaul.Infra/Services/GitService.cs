@@ -26,7 +26,15 @@ public class GitService : IGitService
         return await File.ReadAllTextAsync(Path.Combine(temp.Path, filePath));
     }
 
-    public async Task PushChangesAsync(string repoUrl, string branch, string filePath, string content, string authorName, string authorEmail, string? token = null)
+    public async Task PushChangesAsync(
+        string repoUrl,
+        string branch,
+        string filePath,
+        string content,
+        string authorName,
+        string authorEmail,
+        string commitMessage,
+        string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) {
             repoUrl = InjectTokenIntoUrl(repoUrl, token);
@@ -39,7 +47,19 @@ public class GitService : IGitService
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
         await File.WriteAllTextAsync(fullPath, content);
 
-        await temp.CommitAndPushAsync(filePath, authorName, authorEmail);
+        await temp.CommitAndPushAsync(commitMessage, authorName, authorEmail);
+    }
+
+    public async Task CreateBranchAsync(string repoUrl, string sourceBranch, string newBranch, string? token = null)
+    {
+        if (!string.IsNullOrWhiteSpace(token)) {
+            repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        }
+
+        using var temp = new TempGitRepo(repoUrl, sourceBranch);
+        await temp.CloneAsync();
+
+        await temp.CreateAndPushBranchAsync(newBranch);
     }
 
     private string InjectTokenIntoUrl(string url, string token)

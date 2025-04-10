@@ -17,8 +17,8 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
         {
             $"config user.email \"{authorEmail}\"",
             $"config user.name \"{authorName}\"",
-            "add .",
-            $"commit -m \"{commitMessage}\"",
+            "add -A",
+            $"commit -am \"{commitMessage}\"",
             "push",
         };
 
@@ -32,6 +32,32 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
 
         return true;
     }
+
+    public async Task CreateAndPushBranchAsync(string newBranch)
+    {
+        var psi = new ProcessStartInfo
+        {
+            WorkingDirectory = Path,
+            FileName = "git",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+
+        async Task RunGit(string args)
+        {
+            psi.Arguments = args;
+            using var proc = Process.Start(psi)!;
+            await proc.WaitForExitAsync();
+
+            if (proc.ExitCode != 0) {
+                throw new Exception($"Git command failed: {args}\n{await proc.StandardError.ReadToEndAsync()}");
+            }
+        }
+
+        await RunGit($"checkout -b {newBranch}");
+        await RunGit($"push -u origin {newBranch}");
+    }
+
 
     private async Task<bool> RunGit(string args, string? workingDir = null)
     {

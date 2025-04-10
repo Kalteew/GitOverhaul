@@ -7,4 +7,4 @@ public record GitPushRequest(
     string Content,
     string AuthorName,
     string AuthorEmail,
-    string? CommitMessage);
+    string CommitMessage);

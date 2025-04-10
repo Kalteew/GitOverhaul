@@ -19,6 +19,7 @@ public static class PushChanges
                 request.Content,
                 request.AuthorName,
                 request.AuthorEmail,
+                request.CommitMessage,
                 token
             );
 
