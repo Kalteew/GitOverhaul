@@ -11,7 +11,7 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
         await RunGit($"clone --branch {branch} --single-branch {repoUrl} \"{Path}\"");
     }
 
-    public async Task<bool> CommitAndPushAsync(string commitMessage, string authorName, string authorEmail)
+    public async Task CommitAndPushAsync(string commitMessage, string authorName, string authorEmail)
     {
         var cmds = new[]
         {
@@ -19,45 +19,20 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
             $"config user.name \"{authorName}\"",
             "add -A",
             $"commit -am \"{commitMessage}\"",
-            "push",
+            "push -u origin",
         };
 
-        foreach (var cmd in cmds) {
-            var success = await RunGit(cmd, Path);
+        Console.WriteLine($"debug : {repoUrl} - {branch}");
 
-            if (!success) {
-                return false;
-            }
-        }
-
-        return true;
+        foreach (var cmd in cmds)
+            await RunGit(cmd, Path);
     }
 
     public async Task CreateAndPushBranchAsync(string newBranch)
     {
-        var psi = new ProcessStartInfo
-        {
-            WorkingDirectory = Path,
-            FileName = "git",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-
-        async Task RunGit(string args)
-        {
-            psi.Arguments = args;
-            using var proc = Process.Start(psi)!;
-            await proc.WaitForExitAsync();
-
-            if (proc.ExitCode != 0) {
-                throw new Exception($"Git command failed: {args}\n{await proc.StandardError.ReadToEndAsync()}");
-            }
-        }
-
-        await RunGit($"checkout -b {newBranch}");
-        await RunGit($"push -u origin {newBranch}");
+        await RunGit($"checkout -b {newBranch}", Path);
+        await RunGit($"push -u origin {newBranch}", Path);
     }
-
 
     private async Task<bool> RunGit(string args, string? workingDir = null)
     {
@@ -70,8 +45,18 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
             UseShellExecute = false,
         };
 
+        Console.WriteLine($"[Running] git {args}");
         using var proc = Process.Start(psi)!;
+        var output = await proc.StandardOutput.ReadToEndAsync();
+        var error = await proc.StandardError.ReadToEndAsync();
         await proc.WaitForExitAsync();
+
+        if (proc.ExitCode != 0) {
+            await Console.Error.WriteLineAsync($"[Git ERROR] git {args}\n{error}");
+            throw new InvalidOperationException($"Échec de la commande Git : git {args} {error}");
+        }
+
+        Console.WriteLine($"[Git OUTPUT] git {args}\n{output}");
         return proc.ExitCode == 0;
     }
 

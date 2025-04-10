@@ -37,6 +37,7 @@ public class GitService : IGitService
         string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) {
+            Console.WriteLine("NO TOKEN!!");
             repoUrl = InjectTokenIntoUrl(repoUrl, token);
         }
 
@@ -44,8 +45,16 @@ public class GitService : IGitService
         await temp.CloneAsync();
 
         var fullPath = Path.Combine(temp.Path, filePath);
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-        await File.WriteAllTextAsync(fullPath, content);
+
+        try {
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+            await File.WriteAllTextAsync(fullPath, content);
+            Console.WriteLine($"[FS] Écriture OK dans {filePath}");
+        }
+        catch (Exception ex) {
+            await Console.Error.WriteLineAsync($"[FS ERROR] Impossible d’écrire dans {filePath} : {ex.Message}");
+            throw new IOException($"Impossible d’écrire dans le fichier '{filePath}'", ex);
+        }
 
         await temp.CommitAndPushAsync(commitMessage, authorName, authorEmail);
     }
@@ -65,7 +74,7 @@ public class GitService : IGitService
     private string InjectTokenIntoUrl(string url, string token)
     {
         var uri = new Uri(url);
-        return $"https://{token}@{uri.Host}{uri.PathAndQuery}";
+        return $"https://x-access-token:{token}@{uri.Host}{uri.PathAndQuery}";
     }
 
 
