@@ -8,18 +8,16 @@ namespace GitOverhaul.Api.Tools;
 
 public static class GenerateOpenAiSchema
 {
-    public static void Run(ISwaggerProvider swaggerGen)
+    public static void Run(ISwaggerProvider provider)
     {
-        var doc = swaggerGen.GetSwagger("v1");
+        var doc = provider.GetSwagger("v1");
 
-        // Ajout de la description et du serveur pour OpenAI
         doc.Info.Description = "API pour explorer et modifier des repositories Git à distance.";
         doc.Servers = new List<OpenApiServer>
         {
             new() { Url = "https://gitoverhaul.onrender.com" }
         };
 
-        // Sérialisation dans un JsonNode pour injecter manuellement openapi: "3.1.0"
         var stream = new MemoryStream();
 
         using (var writer = new StreamWriter(stream, leaveOpen: true)) {
