@@ -8,11 +8,9 @@ namespace GitOverhaul.Api.Tools;
 
 public static class GenerateOpenAiSchema
 {
-    public static void Run(IServiceCollection builderServices)
+    public static void Run(IServiceProvider services)
     {
-        var provider = builderServices.BuildServiceProvider();
-        var swaggerGen = provider.GetRequiredService<SwaggerGenerator>();
-
+        var swaggerGen = services.GetRequiredService<SwaggerGenerator>();
         var doc = swaggerGen.GetSwagger("v1");
 
         // Ajout de la description et du serveur pour OpenAI
