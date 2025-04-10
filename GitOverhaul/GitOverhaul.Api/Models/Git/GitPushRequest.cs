@@ -4,5 +4,7 @@ public record GitPushRequest(
     string RepoUrl,
     string Branch,
     string FilePath,
-    string NewContent,
-    string CommitMessage);
+    string Content,
+    string AuthorName,
+    string AuthorEmail,
+    string? CommitMessage);

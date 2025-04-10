@@ -8,18 +8,23 @@ public static class PushChanges
     public static RouteGroupBuilder MapPushChanges(this RouteGroupBuilder group)
     {
         group.MapPost("/push", async (
-            GitPushRequest req,
+            GitPushRequest request,
+            string? token,
             IGitService gitService) =>
         {
-            var result = await gitService.PushChangesAsync(
-                req.RepoUrl,
-                req.Branch,
-                req.FilePath,
-                req.NewContent,
-                req.CommitMessage);
+            await gitService.PushChangesAsync(
+                request.RepoUrl,
+                request.Branch,
+                request.FilePath,
+                request.Content,
+                request.AuthorName,
+                request.AuthorEmail,
+                token
+            );
 
-            return result ? Results.Ok("Changes pushed.") : Results.Problem("Push failed.");
+            return Results.Ok();
         });
+
         return group;
     }
 }

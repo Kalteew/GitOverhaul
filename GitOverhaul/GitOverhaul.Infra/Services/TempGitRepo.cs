@@ -11,12 +11,12 @@ public class TempGitRepo(string repoUrl, string branch) : IDisposable
         await RunGit($"clone --branch {branch} --single-branch {repoUrl} \"{Path}\"");
     }
 
-    public async Task<bool> CommitAndPushAsync(string commitMessage)
+    public async Task<bool> CommitAndPushAsync(string commitMessage, string authorName, string authorEmail)
     {
         var cmds = new[]
         {
-            "config user.email \"you@example.com\"",
-            "config user.name \"GitOverhaul\"",
+            $"config user.email \"{authorEmail}\"",
+            $"config user.name \"{authorName}\"",
             "add .",
             $"commit -m \"{commitMessage}\"",
             "push",

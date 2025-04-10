@@ -6,15 +6,17 @@ public static class ReadFile
 {
     public static RouteGroupBuilder MapReadFile(this RouteGroupBuilder group)
     {
-        group.MapGet("/file", async (
+        group.MapGet("/read", async (
             string repoUrl,
             string branch,
-            string path,
+            string filePath,
+            string? token,
             IGitService gitService) =>
         {
-            var content = await gitService.ReadFileAsync(repoUrl, branch, path);
-            return content is null ? Results.NotFound() : Results.Ok(content);
+            var content = await gitService.ReadFileAsync(repoUrl, branch, filePath, token);
+            return Results.Ok(content);
         });
+
         return group;
     }
 }

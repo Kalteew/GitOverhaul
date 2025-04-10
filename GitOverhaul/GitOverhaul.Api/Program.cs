@@ -1,4 +1,5 @@
 using GitOverhaul.Api.Features.Git;
+using GitOverhaul.Api.Middleware;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
 
@@ -11,6 +12,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseSwagger();
+app.UseMiddleware<ErrorMiddleware>();
 app.UseSwaggerUI();
 
 var gitGroup = app.MapGroup("/git");

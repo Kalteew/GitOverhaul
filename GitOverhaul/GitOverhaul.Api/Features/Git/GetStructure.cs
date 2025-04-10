@@ -9,11 +9,13 @@ public static class GetStructure
         group.MapGet("/structure", async (
             string repoUrl,
             string branch,
+            string? token,
             IGitService gitService) =>
         {
-            var structure = await gitService.GetRepositoryStructureAsync(repoUrl, branch);
+            var structure = await gitService.GetRepositoryStructureAsync(repoUrl, branch, token);
             return Results.Ok(structure);
         });
+
 
         return group;
     }

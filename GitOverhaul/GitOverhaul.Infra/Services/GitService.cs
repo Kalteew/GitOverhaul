@@ -4,33 +4,50 @@ namespace GitOverhaul.Infra.Services;
 
 public class GitService : IGitService
 {
-    public async Task<object> GetRepositoryStructureAsync(string repoUrl, string branch)
+    public async Task<object> GetRepositoryStructureAsync(string repoUrl, string branch, string? token = null)
     {
+        if (!string.IsNullOrWhiteSpace(token)) {
+            repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        }
+
         using var temp = new TempGitRepo(repoUrl, branch);
         await temp.CloneAsync();
         return BuildStructure(temp.Path);
     }
 
-    public async Task<string?> ReadFileAsync(string repoUrl, string branch, string path)
+    public async Task<string> ReadFileAsync(string repoUrl, string branch, string filePath, string? token = null)
     {
+        if (!string.IsNullOrWhiteSpace(token)) {
+            repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        }
+
         using var temp = new TempGitRepo(repoUrl, branch);
         await temp.CloneAsync();
-
-        var fullPath = Path.Combine(temp.Path, path);
-        return File.Exists(fullPath) ? await File.ReadAllTextAsync(fullPath) : null;
+        return await File.ReadAllTextAsync(Path.Combine(temp.Path, filePath));
     }
 
-    public async Task<bool> PushChangesAsync(string repoUrl, string branch, string filePath, string newContent, string commitMessage)
+    public async Task PushChangesAsync(string repoUrl, string branch, string filePath, string content, string authorName, string authorEmail, string? token = null)
     {
+        if (!string.IsNullOrWhiteSpace(token)) {
+            repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        }
+
         using var temp = new TempGitRepo(repoUrl, branch);
         await temp.CloneAsync();
 
         var fullPath = Path.Combine(temp.Path, filePath);
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-        await File.WriteAllTextAsync(fullPath, newContent);
+        await File.WriteAllTextAsync(fullPath, content);
 
-        return await temp.CommitAndPushAsync(commitMessage);
+        await temp.CommitAndPushAsync(filePath, authorName, authorEmail);
     }
+
+    private string InjectTokenIntoUrl(string url, string token)
+    {
+        var uri = new Uri(url);
+        return $"https://{token}@{uri.Host}{uri.PathAndQuery}";
+    }
+
 
     private object BuildStructure(string rootPath)
     {
