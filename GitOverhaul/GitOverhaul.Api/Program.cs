@@ -15,12 +15,8 @@ builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
-// Génération dynamique au runtime si le fichier n'existe pas
-var schemaPath = Path.Combine(app.Environment.WebRootPath!, "openai-actions.json");
-if (!File.Exists(schemaPath))
-{
-    GenerateOpenAiSchema.Run();
-}
+// Génération dynamique du fichier OpenAI à chaque démarrage
+GenerateOpenAiSchema.Run();
 
 app.UseStaticFiles();
 app.UseSwagger();
