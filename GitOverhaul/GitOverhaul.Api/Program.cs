@@ -15,8 +15,8 @@ builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
-// Génération dynamique du fichier OpenAI à chaque démarrage
-GenerateOpenAiSchema.Run();
+// Génération dynamique du fichier OpenAI après l'initialisation du conteneur
+GenerateOpenAiSchema.Run(app.Services);
 
 app.UseStaticFiles();
 app.UseSwagger();
