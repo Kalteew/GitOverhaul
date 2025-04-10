@@ -1,7 +1,9 @@
 using GitOverhaul.Api.Features.Git;
 using GitOverhaul.Api.Middleware;
+using GitOverhaul.Api.Tools;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
+using Swashbuckle.AspNetCore.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+if (args.Contains("--schema"))
+{
+    var swagger = app.Services.GetRequiredService<ISwaggerProvider>();
+    GenerateOpenAiSchema.Run(swagger);
+    return;
+}
 
 app.UseStaticFiles();
 app.UseSwagger();
