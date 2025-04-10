@@ -1,8 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Writers;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.OpenApi.Models;
+using System.Text.Json;
 
 namespace GitOverhaul.Api.Tools;
 
@@ -19,20 +20,28 @@ public static class GenerateOpenAiSchema
 
         var doc = swaggerGen.GetSwagger("v1");
 
-        // Adaptation OpenAI: version, server, etc.
-        doc.OpenApi = new(new Version(3, 1, 0));
+        // Ajout de la description et du serveur pour OpenAI
         doc.Info.Description = "API pour explorer et modifier des repositories Git à distance.";
         doc.Servers = new List<OpenApiServer>
         {
             new() { Url = "https://gitoverhaul.onrender.com" }
         };
 
-        // Write to file
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "openai-actions.json");
-        using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
-        using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+        // Sérialisation dans un JsonNode pour injecter manuellement openapi: "3.1.0"
+        var stream = new MemoryStream();
+        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        {
+            var openApiWriter = new OpenApiJsonWriter(writer);
+            doc.SerializeAsV3(openApiWriter);
+            writer.Flush();
+        }
 
-        var openApiWriter = new OpenApiJsonWriter(writer);
-        doc.SerializeAsV3(openApiWriter);
+        stream.Position = 0;
+        using var jsonDoc = JsonDocument.Parse(stream);
+        var root = JsonNode.Parse(jsonDoc.RootElement.GetRawText())!.AsObject();
+        root["openapi"] = "3.1.0";
+
+        var finalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "openai-actions.json");
+        File.WriteAllText(finalPath, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 }
