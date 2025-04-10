@@ -1,4 +1,5 @@
 using GitOverhaul.Api.Features.Git;
+using GitOverhaul.Api.Features.OpenAi;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
@@ -20,5 +21,8 @@ gitGroup.MapGetStructure()
     .MapReadFile()
     .MapPushChanges()
     .MapCreateBranch();
+
+var openaiGroup = app.MapGroup("/openai");
+openaiGroup.MapOpenAiSchema();
 
 app.Run();
