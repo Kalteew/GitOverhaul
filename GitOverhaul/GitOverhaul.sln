@@ -12,7 +12,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{62196A9E-8A2E-477C-B6B9-27AF0CB75FD1}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
-		..\render.yaml = ..\render.yaml
 	EndProjectSection
 EndProject
 Global
