@@ -3,12 +3,14 @@ using GitOverhaul.Api.Features.OpenAi;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IGitService, GitService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
