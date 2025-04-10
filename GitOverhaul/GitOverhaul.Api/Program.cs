@@ -1,9 +1,7 @@
 using GitOverhaul.Api.Features.Git;
 using GitOverhaul.Api.Middleware;
-using GitOverhaul.Api.Tools;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
-using Swashbuckle.AspNetCore.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +21,5 @@ gitGroup.MapGetStructure()
     .MapReadFile()
     .MapPushChanges()
     .MapCreateBranch();
-
-var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
-GenerateOpenAiSchema.Run(swaggerProvider);
 
 app.Run();
