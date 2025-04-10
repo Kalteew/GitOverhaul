@@ -15,9 +15,6 @@ builder.Services.AddTransient<SwaggerGenerator>();
 
 var app = builder.Build();
 
-// Génération dynamique du fichier OpenAI après l'initialisation du conteneur
-GenerateOpenAiSchema.Run(app.Services);
-
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseMiddleware<ErrorMiddleware>();
@@ -31,5 +28,8 @@ gitGroup.MapGetStructure()
 
 var openaiGroup = app.MapGroup("/openai");
 openaiGroup.MapOpenAiSchema();
+
+// Génération du fichier OpenAI après que Swagger soit intégré dans le pipeline
+GenerateOpenAiSchema.Run(builder.Services);
 
 app.Run();

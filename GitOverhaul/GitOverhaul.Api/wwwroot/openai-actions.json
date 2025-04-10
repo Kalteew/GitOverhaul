@@ -1,29 +1,15 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "info": {
-    "title": "GitOverhaul API",
-    "version": "v1"
+    "title": "GitOverhaul.Api",
+    "description": "API pour explorer et modifier des repositories Git \u00E0 distance.",
+    "version": "1.0"
   },
-  "paths": {
-    "/git/structure": {
-      "get": {
-        "summary": "Get Git structure"
-      }
-    },
-    "/git/read": {
-      "get": {
-        "summary": "Read Git file"
-      }
-    },
-    "/git/push": {
-      "post": {
-        "summary": "Push Git file"
-      }
-    },
-    "/git/create-branch": {
-      "post": {
-        "summary": "Create Git branch"
-      }
+  "servers": [
+    {
+      "url": "https://gitoverhaul.onrender.com"
     }
-  }
+  ],
+  "paths": {},
+  "components": {}
 }

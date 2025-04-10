@@ -1,21 +1,16 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Writers;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi.Models;
-using System.Text.Json;
+using Microsoft.OpenApi.Writers;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace GitOverhaul.Api.Tools;
 
 public static class GenerateOpenAiSchema
 {
-    public static void Run()
+    public static void Run(IServiceCollection builderServices)
     {
-        var services = new ServiceCollection();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-
-        var provider = services.BuildServiceProvider();
+        var provider = builderServices.BuildServiceProvider();
         var swaggerGen = provider.GetRequiredService<SwaggerGenerator>();
 
         var doc = swaggerGen.GetSwagger("v1");
@@ -29,8 +24,8 @@ public static class GenerateOpenAiSchema
 
         // Sérialisation dans un JsonNode pour injecter manuellement openapi: "3.1.0"
         var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
-        {
+
+        using (var writer = new StreamWriter(stream, leaveOpen: true)) {
             var openApiWriter = new OpenApiJsonWriter(writer);
             doc.SerializeAsV3(openApiWriter);
             writer.Flush();
