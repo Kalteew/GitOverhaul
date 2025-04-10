@@ -6,17 +6,21 @@ COPY GitOverhaul.sln .
 COPY GitOverhaul.Api/GitOverhaul.Api.csproj GitOverhaul.Api/
 COPY GitOverhaul.Domain/GitOverhaul.Domain.csproj GitOverhaul.Domain/
 COPY GitOverhaul.Infra/GitOverhaul.Infra.csproj GitOverhaul.Infra/
+COPY GitOverhaul.SchemaGen/GitOverhaul.SchemaGen.csproj GitOverhaul.SchemaGen/
 
 RUN dotnet restore
 
 COPY GitOverhaul.Api/ GitOverhaul.Api/
 COPY GitOverhaul.Domain/ GitOverhaul.Domain/
 COPY GitOverhaul.Infra/ GitOverhaul.Infra/
+COPY GitOverhaul.SchemaGen/ GitOverhaul.SchemaGen/
 
 # Generate OpenAI schema during build
-WORKDIR /src/GitOverhaul.Api
-RUN dotnet run --no-launch-profile --project GitOverhaul.Api.csproj --no-build -- GenerateSchemaEntry.cs || true
+WORKDIR /src
+RUN dotnet run --project GitOverhaul.SchemaGen
 
+# Publish main API project
+WORKDIR /src/GitOverhaul.Api
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
