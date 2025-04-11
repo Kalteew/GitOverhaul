@@ -17,6 +17,7 @@ public static class GenerateOpenAiSchema
         {
             new() { Url = "https://gitoverhaul.onrender.com" }
         };
+        doc.Info.Version = "3.1.0";
 
         var stream = new MemoryStream();
 
@@ -29,7 +30,6 @@ public static class GenerateOpenAiSchema
         stream.Position = 0;
         using var jsonDoc = JsonDocument.Parse(stream);
         var root = JsonNode.Parse(jsonDoc.RootElement.GetRawText())!.AsObject();
-        root["openapi"] = "3.1.0";
 
         var finalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "openai-actions.json");
         File.WriteAllText(finalPath, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
