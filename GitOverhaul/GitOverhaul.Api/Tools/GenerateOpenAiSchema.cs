@@ -54,7 +54,11 @@ public static class GenerateOpenAiSchema
             }
         }
 
-        var finalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "openai-actions.json");
+        var wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        if (!Directory.Exists(wwwroot))
+            Directory.CreateDirectory(wwwroot);
+
+        var finalPath = Path.Combine(wwwroot, "openai-actions.json");
         File.WriteAllText(finalPath, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
