@@ -5,34 +5,41 @@ using Microsoft.AspNetCore.Mvc;
 namespace GitOverhaul.Api.Controllers;
 
 [ApiController]
-[Route("git")]
+[Route("api/git")]
 public class GitController(IGitService gitService) : ControllerBase
 {
     [HttpGet("structure")]
-    public IResult GetStructure([FromQuery] string repoUrl, [FromQuery] string branch, [FromQuery] string? token)
+    public async Task<IActionResult> GetStructure(string repoUrl, string branch, string? token)
     {
-        var result = gitService.GetStructure(repoUrl, branch, token);
-        return Results.Ok(result);
+        var result = await gitService.GetRepositoryStructureAsync(repoUrl, branch, token);
+        return Ok(result);
     }
 
     [HttpGet("read")]
-    public IResult Read([FromQuery] string repoUrl, [FromQuery] string branch, [FromQuery] string filePath, [FromQuery] string? token)
+    public async Task<IActionResult> Read(string repoUrl, string branch, string filePath, string? token)
     {
-        var result = gitService.ReadFile(repoUrl, branch, filePath, token);
-        return Results.Ok(result);
+        var result = await gitService.ReadFileAsync(repoUrl, branch, filePath, token);
+        return Ok(result);
     }
 
     [HttpPost("push")]
-    public IResult Push([FromQuery] string? token, [FromBody] GitPushRequest request)
+    public async Task<IActionResult> Push([FromQuery] string? token, [FromBody] GitPushRequest request)
     {
-        var result = gitService.PushFile(request with { Token = token });
-        return Results.Ok(result);
+        await gitService.PushChangesAsync(
+            request.RepoUrl!, request.Branch!, request.FilePath!,
+            request.Content!, request.AuthorName!, request.AuthorEmail!,
+            request.CommitMessage!, token
+        );
+        return Ok();
     }
 
     [HttpPost("create-branch")]
-    public IResult CreateBranch([FromBody] CreateBranchRequest request)
+    public async Task<IActionResult> CreateBranch([FromBody] CreateBranchRequest request)
     {
-        var result = gitService.CreateBranch(request);
-        return Results.Ok(result);
+        await gitService.CreateBranchAsync(
+            request.RepoUrl!, request.SourceBranch!, request.NewBranch!,
+            request.Token
+        );
+        return Ok();
     }
 }
