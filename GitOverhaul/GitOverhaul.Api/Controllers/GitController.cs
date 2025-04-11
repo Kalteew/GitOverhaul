@@ -1,5 +1,5 @@
 using GitOverhaul.Domain.Services;
-using GitOverhaul.Api.Models.Git;
+using GitOverhaul.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GitOverhaul.Api.Controllers;
