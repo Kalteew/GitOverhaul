@@ -25,6 +25,9 @@ gitGroup.MapGetStructure()
     .MapPushChanges()
     .MapCreateBranch();
 
+var openaiGroup = app.MapGroup("/openai");
+openaiGroup.MapOpenAiSchemaGenerator();
+
 // Déclenche la génération via requête HTTP interne après démarrage
 app.TriggerDelayedSchemaGeneration();
 
