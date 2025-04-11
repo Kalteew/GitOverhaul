@@ -27,4 +27,4 @@ app.MapControllers();
 var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
 GenerateOpenAiSchema.Run(swaggerProvider);
 
-app.Run();
+app.Run();//pouet

@@ -23,6 +23,22 @@ public class GitController(IGitService gitService) : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("read-multiple")]
+    public async Task<IActionResult> ReadMultiple([FromBody] ReadMultipleFilesRequest request)
+    {
+        var results = new Dictionary<string, string>();
+
+        foreach (var filePath in request.FilePaths)
+        {
+            var content = await gitService.ReadFileAsync(
+                request.RepoUrl, request.Branch, filePath, request.Token
+            );
+            results[filePath] = content;
+        }
+
+        return Ok(results);
+    }
+
     [HttpPost("push")]
     public async Task<IActionResult> Push([FromQuery] string? token, [FromBody] GitPushRequest request)
     {
@@ -31,6 +47,23 @@ public class GitController(IGitService gitService) : ControllerBase
             request.Content!, request.AuthorName!, request.AuthorEmail!,
             request.CommitMessage!, token
         );
+        return Ok();
+    }
+
+    [HttpPost("push-multiple")]
+    public async Task<IActionResult> PushMultiple([FromBody] GitPushMultipleRequest request)
+    {
+        var changes = request.Files
+            .Select(f => (f.FilePath, f.Content))
+            .ToList();
+
+        await gitService.PushMultipleChangesAsync(
+            request.RepoUrl, request.Branch,
+            changes,
+            request.AuthorName, request.AuthorEmail,
+            request.CommitMessage, request.Token
+        );
+
         return Ok();
     }
 
