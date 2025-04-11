@@ -1,4 +1,4 @@
-using GitOverhaul.Api.Features.OpenAi;
+using GitOverhaul.Api.Tools;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
