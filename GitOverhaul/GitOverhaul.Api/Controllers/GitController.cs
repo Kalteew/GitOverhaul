@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-using GitOverhaul.Domain.Services;
 using GitOverhaul.Api.Models.Git;
+using GitOverhaul.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GitOverhaul.Api.Controllers;
@@ -28,8 +27,7 @@ public class GitController(IGitService gitService) : ControllerBase
     {
         var results = new Dictionary<string, string>();
 
-        foreach (var filePath in request.FilePaths)
-        {
+        foreach (var filePath in request.FilePaths) {
             var content = await gitService.ReadFileAsync(
                 request.RepoUrl, request.Branch, filePath, request.Token
             );
@@ -47,6 +45,15 @@ public class GitController(IGitService gitService) : ControllerBase
             request.Content!, request.AuthorName!, request.AuthorEmail!,
             request.CommitMessage!, token
         );
+        return Ok();
+    }
+
+
+    [HttpPost("build")]
+    public async Task<IActionResult> Build([FromBody] GitRequest request)
+    {
+        await gitService.Build(request.RepoUrl, request.Branch, request.Token);
+
         return Ok();
     }
 

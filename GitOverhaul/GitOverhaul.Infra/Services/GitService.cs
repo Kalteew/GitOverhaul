@@ -1,5 +1,5 @@
-using GitOverhaul.Domain.Services;
 using System.Diagnostics;
+using GitOverhaul.Domain.Services;
 
 namespace GitOverhaul.Infra.Services;
 
@@ -47,12 +47,12 @@ public class GitService : IGitService
 
         var fullPath = Path.Combine(temp.Path, filePath);
 
-        if (content == null)
-        {
-            if (File.Exists(fullPath)) File.Delete(fullPath);
+        if (content == null) {
+            if (File.Exists(fullPath)) {
+                File.Delete(fullPath);
+            }
         }
-        else
-        {
+        else {
             try {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 await File.WriteAllTextAsync(fullPath, content);
@@ -83,28 +83,36 @@ public class GitService : IGitService
         using var temp = new TempGitRepo(repoUrl, branch);
         await temp.CloneAsync();
 
-        foreach (var change in changes)
-        {
+        foreach (var change in changes) {
             var fullPath = Path.Combine(temp.Path, change.FilePath);
 
-            if (change.Content == null)
-            {
-                if (File.Exists(fullPath)) File.Delete(fullPath);
+            if (change.Content == null) {
+                if (File.Exists(fullPath)) {
+                    File.Delete(fullPath);
+                }
             }
-            else
-            {
+            else {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 await File.WriteAllTextAsync(fullPath, change.Content);
             }
         }
 
-        var buildResult = RunDotnetBuild(temp.Path);
-        if (buildResult.ExitCode != 0)
-        {
-            throw new InvalidOperationException($"Build failed:\n{buildResult.Output}");
+        await temp.CommitAndPushAsync(commitMessage, authorName, authorEmail);
+    }
+
+    public async Task Build(string repoUrl, string branch, string? token = null)
+    {
+        if (!string.IsNullOrWhiteSpace(token)) {
+            repoUrl = InjectTokenIntoUrl(repoUrl, token);
         }
 
-        await temp.CommitAndPushAsync(commitMessage, authorName, authorEmail);
+        using var temp = new TempGitRepo(repoUrl, branch);
+        await temp.CloneAsync();
+        var buildResult = RunDotnetBuild(temp.Path);
+
+        if (buildResult.ExitCode != 0) {
+            throw new InvalidOperationException($"Build failed:\n{buildResult.Output}");
+        }
     }
 
     private (int ExitCode, string Output) RunDotnetBuild(string rootPath)
@@ -113,8 +121,9 @@ public class GitService : IGitService
         var csproj = Directory.GetFiles(rootPath, "*.csproj", SearchOption.AllDirectories).FirstOrDefault();
         var target = sln ?? csproj;
 
-        if (target == null)
+        if (target == null) {
             return (1, "No .sln or .csproj file found for build.");
+        }
 
         var psi = new ProcessStartInfo("dotnet", $"build \"{target}\"")
         {
@@ -122,7 +131,7 @@ public class GitService : IGitService
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
         };
 
         using var process = Process.Start(psi)!;

@@ -25,4 +25,5 @@ public interface IGitService
         string? token = null);
 
     Task CreateBranchAsync(string repoUrl, string sourceBranch, string newBranch, string? token = null);
+    Task Build(string repoUrl, string branch, string? token = null);
 }
