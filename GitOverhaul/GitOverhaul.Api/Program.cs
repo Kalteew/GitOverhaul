@@ -12,6 +12,7 @@ builder.Services.AddSingleton<IGitService, GitService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Construction de l'application (runtime pipeline, endpoints, DI, etc)
 var app = builder.Build();
 
 app.UseStaticFiles();
