@@ -1,4 +1,5 @@
 using GitOverhaul.Api.Features.Git;
+using GitOverhaul.Api.Features.OpenAi;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Api.Tools;
 using GitOverhaul.Domain.Services;
@@ -24,10 +25,7 @@ gitGroup.MapGetStructure()
     .MapPushChanges()
     .MapCreateBranch();
 
-if (args.Contains("--schema")) {
-    var swagger = app.Services.GetRequiredService<ISwaggerProvider>();
-    GenerateOpenAiSchema.Run(swagger);
-    return;
-}
+// Déclenche la génération via requête HTTP interne après démarrage
+app.TriggerDelayedSchemaGeneration();
 
 app.Run();
