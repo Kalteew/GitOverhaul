@@ -6,20 +6,12 @@ public static class GenerateOnStartup
     {
         Task.Run(async () =>
         {
+            await Task.Delay(10_000); // attendre 10s après app.Run pour s'assurer que tout est prêt
+
             using var client = new HttpClient();
-            var url = "http://localhost:8080/openai/schema/generate";
+            var url = "http://localhost:8080/openai/schema";
 
-            for (int i = 0; i < 10; i++) // max 10 tentatives
-            {
-                try
-                {
-                    var res = await client.GetAsync(url);
-                    if (res.IsSuccessStatusCode) return;
-                }
-                catch { /* ignore */ }
-
-                await Task.Delay(500);
-            }
+            try { await client.GetAsync(url); } catch { /* no-op */ }
         });
     }
 }
