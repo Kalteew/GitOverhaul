@@ -31,7 +31,39 @@ public static class GenerateOpenAiSchema
         using var jsonDoc = JsonDocument.Parse(stream);
         var root = JsonNode.Parse(jsonDoc.RootElement.GetRawText())!.AsObject();
 
+        // Fix version & cleanup
+        root.Remove("swagger");
+        root["openapi"] = "3.1.0";
+
+        // Patch operationId per endpoint
+        if (root["paths"] is JsonObject paths)
+        {
+            foreach (var (pathKey, pathVal) in paths)
+            {
+                if (pathVal is JsonObject methods)
+                {
+                    foreach (var (method, details) in methods)
+                    {
+                        if (details is JsonObject obj && !obj.ContainsKey("operationId"))
+                        {
+                            var opId = GenerateOperationId(pathKey, method);
+                            obj["operationId"] = opId;
+                        }
+                    }
+                }
+            }
+        }
+
         var finalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "openai-actions.json");
         File.WriteAllText(finalPath, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
+
+    private static string GenerateOperationId(string path, string method)
+    {
+        var segments = path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        return method[..1].ToUpper() + method[1..] + string.Join("", segments.Select(Capitalize));
+    }
+
+    private static string Capitalize(string input)
+        => input.Length == 0 ? input : char.ToUpper(input[0]) + input[1..];
 }
