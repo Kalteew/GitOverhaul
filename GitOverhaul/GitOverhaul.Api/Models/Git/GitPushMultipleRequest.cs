@@ -1,8 +1,16 @@
+using Swashbuckle.AspNetCore.Annotations;
+
 namespace GitOverhaul.Api.Models.Git;
 
 public record FilePushData(
+    [property: SwaggerSchema(Description = "Chemin relatif du fichier dans le dépôt.")]
     string FilePath,
-    string? Content // null = delete
+
+    [property: SwaggerSchema(Description = "Contenu complet du fichier. Ce n'est pas un diff, mais le fichier entier.")]
+    string? Content,
+
+    [property: SwaggerSchema(Description = "Si vrai, le fichier sera supprimé.")]
+    bool IsDeletion
 );
 
 public record GitPushMultipleRequest(

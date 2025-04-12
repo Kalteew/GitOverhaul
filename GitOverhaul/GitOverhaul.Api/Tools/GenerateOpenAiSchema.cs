@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Writers;
 using Swashbuckle.AspNetCore.Swagger;
@@ -54,6 +55,9 @@ public static class GenerateOpenAiSchema
             }
         }
 
+        // Inject parameter descriptions from XML docs
+        TryInjectXmlComments(root);
+
         var wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         if (!Directory.Exists(wwwroot))
             Directory.CreateDirectory(wwwroot);
@@ -70,4 +74,34 @@ public static class GenerateOpenAiSchema
 
     private static string Capitalize(string input)
         => input.Length == 0 ? input : char.ToUpper(input[0]) + input[1..];
+
+    private static void TryInjectXmlComments(JsonObject root)
+    {
+        var basePath = AppContext.BaseDirectory;
+        var xmlFile = Directory.GetFiles(basePath, "*.xml").FirstOrDefault();
+        if (xmlFile == null || root["paths"] is not JsonObject paths) return;
+
+        var doc = XDocument.Load(xmlFile);
+        var summaries = doc.Descendants("member")
+            .Where(m => m.Attribute("name")?.Value.StartsWith("P:") == true)
+            .ToDictionary(
+                m => m.Attribute("name")!.Value.Split(':')[1],
+                m => m.Element("summary")?.Value.Trim()
+            );
+
+        foreach (var (_, pathVal) in paths)
+        {
+            if (pathVal is not JsonObject methods) continue;
+            foreach (var (_, details) in methods)
+            {
+                if (details is not JsonObject obj || obj["parameters"] is not JsonArray parameters) continue;
+                foreach (var param in parameters.OfType<JsonObject>())
+                {
+                    var name = param["name"]?.ToString();
+                    if (name != null && summaries.TryGetValue(name, out var desc))
+                        param["description"] = desc;
+                }
+            }
+        }
+    }
 }

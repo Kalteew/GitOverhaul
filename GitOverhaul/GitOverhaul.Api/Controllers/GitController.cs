@@ -1,6 +1,7 @@
 using GitOverhaul.Api.Models.Git;
 using GitOverhaul.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace GitOverhaul.Api.Controllers;
 
@@ -9,20 +10,15 @@ namespace GitOverhaul.Api.Controllers;
 public class GitController(IGitService gitService) : ControllerBase
 {
     [HttpGet("structure")]
+    [SwaggerOperation(Summary = "Récupère la structure d'un dépôt Git", Description = "Retourne l'arborescence du dépôt pour une branche donnée.")]
     public async Task<IActionResult> GetStructure(string repoUrl, string branch, string? token)
     {
         var result = await gitService.GetRepositoryStructureAsync(repoUrl, branch, token);
         return Ok(result);
     }
 
-    [HttpGet("read")]
-    public async Task<IActionResult> Read(string repoUrl, string branch, string filePath, string? token)
-    {
-        var result = await gitService.ReadFileAsync(repoUrl, branch, filePath, token);
-        return Ok(result);
-    }
-
     [HttpPost("read-multiple")]
+    [SwaggerOperation(Summary = "Lire plusieurs fichiers", Description = "Lit le contenu de plusieurs fichiers dans un dépôt Git.")]
     public async Task<IActionResult> ReadMultiple([FromBody] ReadMultipleFilesRequest request)
     {
         var results = new Dictionary<string, string>();
@@ -37,31 +33,12 @@ public class GitController(IGitService gitService) : ControllerBase
         return Ok(results);
     }
 
-    [HttpPost("push")]
-    public async Task<IActionResult> Push([FromQuery] string? token, [FromBody] GitPushRequest request)
-    {
-        await gitService.PushChangesAsync(
-            request.RepoUrl!, request.Branch!, request.FilePath!,
-            request.Content!, request.AuthorName!, request.AuthorEmail!,
-            request.CommitMessage!, token
-        );
-        return Ok();
-    }
-
-
-    [HttpPost("build")]
-    public async Task<IActionResult> Build([FromBody] GitRequest request)
-    {
-        await gitService.Build(request.RepoUrl, request.Branch, request.Token);
-
-        return Ok();
-    }
-
     [HttpPost("push-multiple")]
+    [SwaggerOperation(Summary = "Pousser plusieurs changements", Description = "Crée, modifie ou supprime plusieurs fichiers dans un dépôt Git.")]
     public async Task<IActionResult> PushMultiple([FromBody] GitPushMultipleRequest request)
     {
         var changes = request.Files
-            .Select(f => (f.FilePath, f.Content))
+            .Select(f => (f.FilePath, f.Content, f.IsDeletion))
             .ToList();
 
         await gitService.PushMultipleChangesAsync(
@@ -74,7 +51,16 @@ public class GitController(IGitService gitService) : ControllerBase
         return Ok();
     }
 
+    [HttpPost("build")]
+    [SwaggerOperation(Summary = "Builder le dépôt", Description = "Exécute une commande dotnet build sur le dépôt.")]
+    public async Task<IActionResult> Build([FromBody] GitRequest request)
+    {
+        await gitService.Build(request.RepoUrl, request.Branch, request.Token);
+        return Ok();
+    }
+
     [HttpPost("create-branch")]
+    [SwaggerOperation(Summary = "Créer une branche", Description = "Crée une nouvelle branche à partir d'une autre.")]
     public async Task<IActionResult> CreateBranch([FromBody] CreateBranchRequest request)
     {
         await gitService.CreateBranchAsync(

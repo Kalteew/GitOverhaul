@@ -2,6 +2,7 @@ using GitOverhaul.Api.Tools;
 using GitOverhaul.Api.Middleware;
 using GitOverhaul.Domain.Services;
 using GitOverhaul.Infra.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IGitService, GitService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+});
 
 var app = builder.Build();
 
