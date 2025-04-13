@@ -33,6 +33,6 @@ Console.WriteLine($"[ENV] env={env}, publicUrl={publicUrl}");
 
 // Génération automatique du fichier openai-actions.json au startup
 var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
-GenerateOpenAiSchema.Run(swaggerProvider, publicUrl);
+GenerateOpenAiSchema.Run(swaggerProvider);
 
 app.Run();
