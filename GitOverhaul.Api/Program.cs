@@ -22,10 +22,10 @@ app.UseSwaggerUI();
 
 app.MapControllers();
 
+app.UseStaticFiles();
+
 // Génération automatique du fichier openai-actions.json au startup
 var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
 GenerateOpenAiSchema.Run(swaggerProvider);
-
-app.UseStaticFiles();
 
 app.Run();
