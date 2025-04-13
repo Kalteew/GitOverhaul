@@ -75,6 +75,52 @@ public class GitService : IGitService
         await repo.CreateAndPushBranchAsync(newBranch);
     }
 
+    public async Task<List<(string Command, string Output)>> RunGitCommandsAsync(string repoUrl, string branch, List<string> commands, string? token = null)
+    {
+        if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        var repo = new PersistentGitRepo(repoUrl, branch);
+        await repo.EnsureUpdatedAsync();
+
+        var results = new List<(string Command, string Output)>();
+
+        foreach (var cmd in commands)
+        {
+            try
+            {
+                var output = await RunGit(cmd, repo.Path);
+                results.Add((cmd, output));
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Commande échouée: '{cmd}'\n{ex.Message}");
+            }
+        }
+
+        return results;
+    }
+
+    private async Task<string> RunGit(string args, string workingDir)
+    {
+        var psi = new ProcessStartInfo("git", args)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            WorkingDirectory = workingDir,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+        };
+
+        using var proc = Process.Start(psi)!;
+        var output = await proc.StandardOutput.ReadToEndAsync();
+        var error = await proc.StandardError.ReadToEndAsync();
+        await proc.WaitForExitAsync();
+
+        if (proc.ExitCode != 0)
+            throw new Exception(error);
+
+        return output;
+    }
+
     private string InjectTokenIntoUrl(string url, string token)
     {
         var uri = new Uri(url);
