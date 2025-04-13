@@ -69,4 +69,19 @@ public class GitController(IGitService gitService) : ControllerBase
         );
         return Ok();
     }
+
+    [HttpPost("run-git-commands")]
+    [SwaggerOperation(Summary = "Exécuter des commandes Git", Description = "Exécute une liste de commandes Git dans l'ordre donné. Retourne les logs ou une erreur détaillée.")]
+    public async Task<IActionResult> RunGitCommands([FromBody] RunGitCommandsRequest request)
+    {
+        try
+        {
+            var results = await gitService.RunGitCommandsAsync(request.RepoUrl, request.Branch, request.Commands, request.Token);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
 }
