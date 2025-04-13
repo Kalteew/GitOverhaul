@@ -14,9 +14,14 @@ public static class GenerateOpenAiSchema
         var doc = provider.GetSwagger("v1");
 
         doc.Info.Description = "API pour explorer et modifier des repositories Git à distance.";
+        // Configuration de l'URL publique basée sur l'environnement
+        var env = Environment.GetEnvironmentVariable("env")?.ToLowerInvariant();
+        var publicUrl = env == "rec"
+            ? "https://gitoverhaulrec.onrender.com"
+            : "https://gitoverhaul.onrender.com";
         doc.Servers = new List<OpenApiServer>
         {
-            new() { Url = "https://gitoverhaul.onrender.com" }
+            new() { Url = publicUrl },
         };
         doc.Info.Version = "3.1.0";
 

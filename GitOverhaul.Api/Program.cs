@@ -23,14 +23,6 @@ app.UseSwaggerUI();
 app.MapControllers();
 app.UseStaticFiles();
 
-// Configuration de l'URL publique basée sur l'environnement
-var env = Environment.GetEnvironmentVariable("env")?.ToLowerInvariant();
-var publicUrl = env == "rec"
-    ? "https://gitoverhaulrec.onrender.com"
-    : "https://gitoverhaul.onrender.com";
-
-Console.WriteLine($"[ENV] env={env}, publicUrl={publicUrl}");
-
 // Génération automatique du fichier openai-actions.json au startup
 var swaggerProvider = app.Services.GetRequiredService<ISwaggerProvider>();
 GenerateOpenAiSchema.Run(swaggerProvider);
