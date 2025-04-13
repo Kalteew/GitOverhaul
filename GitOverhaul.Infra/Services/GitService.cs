@@ -8,17 +8,17 @@ public class GitService : IGitService
     public async Task<object> GetRepositoryStructureAsync(string repoUrl, string branch, string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
-        using var temp = new TempGitRepo(repoUrl, branch);
-        await temp.CloneAsync();
-        return BuildStructure(temp.Path);
+        var repo = new PersistentGitRepo(repoUrl, branch);
+        await repo.EnsureUpdatedAsync();
+        return BuildStructure(repo.Path);
     }
 
     public async Task<string> ReadFileAsync(string repoUrl, string branch, string filePath, string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
-        using var temp = new TempGitRepo(repoUrl, branch);
-        await temp.CloneAsync();
-        return await File.ReadAllTextAsync(Path.Combine(temp.Path, filePath));
+        var repo = new PersistentGitRepo(repoUrl, branch);
+        await repo.EnsureUpdatedAsync();
+        return await File.ReadAllTextAsync(Path.Combine(repo.Path, filePath));
     }
 
     public async Task PushMultipleChangesAsync(
@@ -31,31 +31,34 @@ public class GitService : IGitService
         string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
-        using var temp = new TempGitRepo(repoUrl, branch);
-        await temp.CloneAsync();
+        var repo = new PersistentGitRepo(repoUrl, branch);
+        await repo.EnsureUpdatedAsync();
 
         foreach (var (filePath, content, isDeletion) in changes)
         {
-            var fullPath = Path.Combine(temp.Path, filePath);
+            var fullPath = Path.Combine(repo.Path, filePath);
 
-            if (isDeletion) {
+            if (isDeletion)
+            {
                 if (File.Exists(fullPath)) File.Delete(fullPath);
-            } else {
+            }
+            else
+            {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 await File.WriteAllTextAsync(fullPath, content!);
             }
         }
 
-        await temp.CommitAndPushAsync(commitMessage, authorName, authorEmail);
+        await repo.CommitAndPushAsync(commitMessage, authorName, authorEmail);
     }
 
     public async Task Build(string repoUrl, string branch, string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        var repo = new PersistentGitRepo(repoUrl, branch);
+        await repo.EnsureUpdatedAsync();
 
-        using var temp = new TempGitRepo(repoUrl, branch);
-        await temp.CloneAsync();
-        var buildResult = RunDotnetBuild(temp.Path);
+        var buildResult = RunDotnetBuild(repo.Path);
 
         if (buildResult.ExitCode != 0)
         {
@@ -66,11 +69,10 @@ public class GitService : IGitService
     public async Task CreateBranchAsync(string repoUrl, string sourceBranch, string newBranch, string? token = null)
     {
         if (!string.IsNullOrWhiteSpace(token)) repoUrl = InjectTokenIntoUrl(repoUrl, token);
+        var repo = new PersistentGitRepo(repoUrl, sourceBranch);
+        await repo.EnsureUpdatedAsync();
 
-        using var temp = new TempGitRepo(repoUrl, sourceBranch);
-        await temp.CloneAsync();
-
-        await temp.CreateAndPushBranchAsync(newBranch);
+        await repo.CreateAndPushBranchAsync(newBranch);
     }
 
     private string InjectTokenIntoUrl(string url, string token)
